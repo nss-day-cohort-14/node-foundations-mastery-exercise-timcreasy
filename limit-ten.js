@@ -1,26 +1,19 @@
-const { Transform } = require('stream');
+const { Transform } = require('stream')
 
-module.exports = Transform({
-  transform (buf, _, cb) {
+// Counter to store amount of words
+let i = 0
 
-    let searchString = process.argv[2];
-
-    if (searchString) {
-      let wordsArray = buf.toString().split('\n');
-      let matches = [];
-      wordsArray.forEach((word) => {
-        if (word.startsWith(searchString.toLowerCase()) && matches.length <= 10) {
-          matches.push(word);
-        }
-      });
-      if (matches.length === 0) {
-        cb(null, 'Usage: streaming.js [searchterm]\n');
-      } else {
-        cb(null, matches.join('\n') + '\n');
-      }
+// Transform stream to limit matches to 10
+const limitToTen = Transform({
+  transform(buf, _, cb) {
+    if (i < 10) {
+      i++;
+      cb(null, buf.toString());
     } else {
-      cb(null, 'Usage: streaming.js [searchterm]\n');
+      cb();
     }
-
   }
-});
+
+})
+
+module.exports = limitToTen;
